@@ -8,7 +8,8 @@
 import Foundation
 
 public protocol Endpoint {
-    var apiKey: String? { get }
+    var apiKeyValue: String? { get }
+    var apiKey: APIKEYType { get }
     var path: String { get }
     var pathParams: [String: String]? { get }
     var headerParams: [String: String]? { get }
@@ -45,13 +46,13 @@ public extension Endpoint {
     var urlRequest: URLRequest {
         var request = URLRequest(url: urlComponents.url!)
         request.setValue(contentType, forHTTPHeaderField: "Content-Type")
-        if let apiKey { request.setValue(apiKey, forHTTPHeaderField: "apikey") }
+        if let apiKeyValue { request.setValue(apiKeyValue, forHTTPHeaderField: apiKey.rawValue) }
         request.httpMethod = method.rawValue
         request.httpBody = getbody()
 
         if let headerParams {
-            headerParams.forEach {
-                request.setValue($0.value, forHTTPHeaderField: $0.key)
+            for headerParam in headerParams {
+                request.setValue(headerParam.value, forHTTPHeaderField: headerParam.key)
             }
         }
 
