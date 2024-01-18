@@ -9,7 +9,7 @@ import Foundation
 
 public protocol Endpoint {
     var apiKeyValue: String? { get }
-    var apiKey: APIKEYType { get }
+    var apiKey: APIKEYType? { get }
     var path: String { get }
     var pathParams: [String: String]? { get }
     var headerParams: [String: String]? { get }
@@ -46,7 +46,7 @@ public extension Endpoint {
     var urlRequest: URLRequest {
         var request = URLRequest(url: urlComponents.url!)
         request.setValue(contentType, forHTTPHeaderField: "Content-Type")
-        if let apiKeyValue { request.setValue(apiKeyValue, forHTTPHeaderField: apiKey.rawValue) }
+        if let apiKeyValue { request.setValue(apiKeyValue, forHTTPHeaderField: apiKey != nil ? apiKey!.rawValue : "apikey") }
         request.httpMethod = method.rawValue
         request.httpBody = getbody()
 
