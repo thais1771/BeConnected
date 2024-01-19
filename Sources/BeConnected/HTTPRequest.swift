@@ -50,6 +50,7 @@ public extension HTTPRequest {
 
     private func response(endpoint: Endpoint) async throws -> (data: Data, response: URLResponse) {
         do {
+            URLSession.shared.configuration.requestCachePolicy = endpoint.cachePolicy
             return try await URLSession.shared.data(for: endpoint.urlRequest)
         } catch {
             dump(error, name: "⛔️⛔️⛔️ Request response error ⛔️⛔️⛔️")
