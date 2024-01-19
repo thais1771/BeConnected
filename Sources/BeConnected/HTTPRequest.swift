@@ -44,13 +44,19 @@ public protocol HTTPRequest {
 
 public extension HTTPRequest {
     func run<Model: Decodable>(_ endpoint: Endpoint) async throws -> Model {
-        let response: (data: Data, response: URLResponse) = try await response(endpoint: endpoint)
+        let response: (data: Data, response: URLResponse) = try await response(session: urlSession(endpoint: endpoint), endpoint: endpoint)
         return try decode(data: response.data, url: endpoint.urlRequest.url?.absoluteString)
     }
+    
+    private func urlSession(endpoint: Endpoint) -> URLSession {
+        let configuration = URLSessionConfiguration.default
+        configuration.requestCachePolicy = endpoint.cachePolicy
+        return URLSession(configuration: configuration)
+    }
 
-    private func response(endpoint: Endpoint) async throws -> (data: Data, response: URLResponse) {
+    private func response(session: URLSession, endpoint: Endpoint) async throws -> (data: Data, response: URLResponse) {
         do {
-            URLSession.shared.configuration.requestCachePolicy = endpoint.cachePolicy
+            let cachedResponse = URLCache.shared.cachedResponse(for: endpoint.urlRequest)
             return try await URLSession.shared.data(for: endpoint.urlRequest)
         } catch {
             dump(error, name: "⛔️⛔️⛔️ Request response error ⛔️⛔️⛔️")
